@@ -18,7 +18,7 @@ export default makeStyles((theme) => ({
     minWidth: '150px',
   },
   link: {
-    textDecoration: 'none',
+    textDecoration: "underline",
   },
   cartDetails: {
     display: 'flex',
