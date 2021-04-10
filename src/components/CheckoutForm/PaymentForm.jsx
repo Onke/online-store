@@ -1,14 +1,53 @@
 import React from 'react';
 import { Typography, Divider, Button}  from "@material-ui/core";
-import { Elements, CardElement, ElementsConsumer  } from "@stripe/react-stripe-js";
+import { Elements, CardElement, ElementsConsumer} from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 
 import Review from "./Review";
 
 
-const stripePromise = loadStripe("...");
+const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_KEY);
 
-const PaymentForm = ({ checkoutToken, backStep }) => {
+const PaymentForm = ({ checkoutToken, shippingData, backStep, onCaptureCheckout, nextStep }) => {
+    const handleSubmit = async (event, elements, stripe) => {
+        event.preventDefault();
+        if(!stripe || ! elements) return;
+
+        const cardElement = elements.getElement(CardElement);
+
+        const { error, paymentMethod } = await stripe.createPaymentMethod({type: "card", card : cardElement});
+
+        if(error){
+            console.log(error);
+        }else{
+            const orderData = {
+                line_items : checkoutToken.live.line_items,
+                customer : {
+                    firstname: shippingData.firstname, 
+                    surname : shippingData.surname, 
+                    email: shippingData.email
+                },
+                shipping : {
+                    name : "Primary",
+                    street: shippingData.address1,
+                    complex : shippingData.address2, 
+                    suberb : shippingData.suburb,
+                    town_city: shippingData.city,
+                    postal_zip_code : shippingData.zip
+                },
+                fulfillment: {shipping_method: shippingData.shippingOption}, 
+                payment: {
+                    gateway: "stripe",
+                    stripe: { payment_method_id: paymentMethod.id }
+                }
+            }
+            
+            onCaptureCheckout(checkoutToken.id, orderData);
+            nextStep();
+        }
+
+    }
+
     return (
         <>
             <Review checkoutToken={checkoutToken} />
@@ -18,7 +57,7 @@ const PaymentForm = ({ checkoutToken, backStep }) => {
                 <ElementsConsumer>
                     {
                         ({ elements, stripe }) => (
-                            <form>
+                            <form onSubmit={(e) => handleSubmit(e, elements, stripe)}>
                                 <CardElement />
                                 <br />
                                 <div style={{display: "flex", justifyContent: "space-between"}}>

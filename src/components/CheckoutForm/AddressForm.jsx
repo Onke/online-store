@@ -29,7 +29,7 @@ const AddressForm = ({checkoutToken, next}) => {
             <FormProvider {...methods}>
                 <form onSubmit={methods.handleSubmit((data) => next({...data}) )}>
                     <Grid container spacing={3}>
-                        <FormInput name="firtname" label="First name" required/>
+                        <FormInput name="firstname" label="First name" required/>
                         <FormInput name="surname" label="Surname" required/>
                         <FormInput name="email" label="Email" required/>
                         <FormInput name="address1" label="Address" required/>
