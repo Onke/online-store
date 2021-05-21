@@ -28,8 +28,7 @@ const Product = ({ product, onAddToCart }) => {
                         <AddShoppingCart />
                     </IconButton>
                 </CardActions>
-        </Card>
-        
+        </Card>       
     )
 }
 
